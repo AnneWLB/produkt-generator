@@ -224,34 +224,31 @@ async function generate() {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1800,
-        system: 'Du antwortest ausschließlich mit einem validen JSON-Array. Kein Text, keine Erklärungen, keine Backticks.',
-        messages: [{
-          role: 'user',
-          content: `8 digitale Produktideen als JSON-Array.
-NISCHE: ${nische} | ZIELGRUPPE: ${zielgruppe} | TRANSFORMATION: ${transformation}
-FORMATE: ${selected.formats.join(',')||'Alle'} | TON: ${selected.tone||'Direkt'} | KI: ${selected.ki.join(',')||'Claude'}
-[{"name":"...","format":"...","type":"freebie","hook":"...","inhalt":["P1","P2","P3","P4"],"schmerz":"...","preis":"...","ki_einsatz":"..."}]
-type = freebie oder paid. Deutsch. Konkrete Namen. Mix. DE-Preise.`
-        }]
+        system: 'Antworte NUR mit einem JSON-Array. Beginne sofort mit [ und ende mit ]. Kein Text, keine Backticks.',
+        messages: [
+          { role: 'user', content: 'Erstelle 8 digitale Produktideen fuer: Nische=' + nische + ', Zielgruppe=' + zielgruppe + ', Transformation=' + transformation + ', Formate=' + (selected.formats.join(',')||'Alle') + ', Ton=' + (selected.tone||'Direkt') + ', KI=' + (selected.ki.join(',')||'Claude') + '. Format: [{"name":"...","format":"...","type":"freebie oder paid","hook":"...","inhalt":["P1","P2","P3","P4"],"schmerz":"...","preis":"...","ki_einsatz":"..."}]. Deutsch. Konkrete Namen. Mix. DE-Preise.' },
+          { role: 'assistant', content: '[' }
+        ]
       })
     });
 
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    const text = data.content?.[0]?.text || '';
+    const rawText = data.content?.[0]?.text || '';
+    // Model continues from prefilled '[', so prepend it
+    const text = '[' + rawText;
     let results = null;
-    const trimmed = text.trim();
-    if (trimmed.startsWith('[')) { try { results = JSON.parse(trimmed); } catch(e) {} }
+    try { results = JSON.parse(text); } catch(e) {}
     if (!results) {
-      const match = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
+      const match = text.match(/\[\s*\{[\s\S]*\}\s*\]/);
       if (match) { try { results = JSON.parse(match[0]); } catch(e) {} }
     }
     if (!results) {
-      const stripped = text.replace(/```[\w]*\n?/g,'').trim();
-      const match2 = stripped.match(/\[\s*\{[\s\S]*\}\s*\]/);
-      if (match2) { try { results = JSON.parse(match2[0]); } catch(e) {} }
+      const stripped = rawText.replace(/```[\w]*\n?/g,'').trim();
+      const full = stripped.startsWith('[') ? stripped : '[' + stripped;
+      try { results = JSON.parse(full); } catch(e) {}
     }
-    if (!results) throw new Error('JSON konnte nicht gelesen werden. Nochmal versuchen.');
+    if (!results) throw new Error('Fehler beim Lesen. Nochmal versuchen.');
     renderResults(results, nische, zielgruppe);
   } catch(e) {
     show('formView'); hide('loadingView');

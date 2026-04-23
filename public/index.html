@@ -109,7 +109,7 @@ header p{font-size:.95rem;font-weight:300;color:var(--mid);max-width:42ch;line-h
   <div class="hero-inner">
     <div class="hero-eye"><span>Produkt-Generator</span></div>
     <h1>Was soll dein nächstes<br/><em>Produkt sein?</em></h1>
-    <p>Füll das aus. Ich generiere dir 8 Ideen — direkt, konkret, umsetzbar.</p>
+    <p>Füll das aus. Ich generiere dir Ideen — direkt, konkret, umsetzbar.</p>
   </div>
 </header>
 
@@ -152,7 +152,7 @@ header p{font-size:.95rem;font-weight:300;color:var(--mid);max-width:42ch;line-h
       </div>
     </div>
     <div class="err-box hidden" id="formErr"></div>
-    <button class="btn btn-r" onclick="generate()">8 Produktideen generieren →</button>
+    <button class="btn btn-r" onclick="generate()">Produktideen generieren →</button>
   </div>
 </div>
 
@@ -164,7 +164,7 @@ header p{font-size:.95rem;font-weight:300;color:var(--mid);max-width:42ch;line-h
 <div id="resultsView" class="hidden">
   <div class="results-header">
     <span class="eye">Ergebnisse</span>
-    <h2 id="resultsTitle">8 <em>Produktideen</em></h2>
+    <h2 id="resultsTitle">${results.length} <em>Produktideen</em></h2>
     <p id="resultsSub"></p>
   </div>
   <div class="cards" id="cardsContainer"></div>
@@ -246,10 +246,10 @@ async function generate() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1800,
+        max_tokens: 2200,
         system: 'Antworte NUR mit einem JSON-Array. Beginne sofort mit [ und ende mit ]. Kein Text, keine Backticks.',
         messages: [
-          { role: 'user', content: 'Erstelle 8 digitale Produktideen fuer: Nische=' + nische + ', Zielgruppe=' + zielgruppe + ', Transformation=' + transformation + ', Formate=' + (selected.formats.join(',')||'Alle') + ', Ton=' + (selected.tone||'Direkt') + ', KI=' + (selected.ki.join(',')||'Claude') + '. Format: [{"name":"...","format":"...","type":"freebie oder paid","hook":"...","inhalt":["P1","P2","P3","P4"],"schmerz":"...","preis":"...","ki_einsatz":"..."}]. Deutsch. Konkrete Namen. Mix. DE-Preise.' },
+          { role: 'user', content: 'Erstelle 10 digitale Produktideen fuer: Nische=' + nische + ', Zielgruppe=' + zielgruppe + ', Transformation=' + transformation + ', Formate=' + (selected.formats.join(',')||'Alle') + ', Ton=' + (selected.tone||'Direkt') + ', KI=' + (selected.ki.join(',')||'Claude') + '. Format: [{"name":"...","format":"...","type":"freebie oder paid","hook":"...","inhalt":["P1","P2","P3","P4"],"schmerz":"...","preis":"...","ki_einsatz":"..."}]. Deutsch. Konkrete Namen. Mix. DE-Preise.' },
           { role: 'assistant', content: '[' }
         ]
       })

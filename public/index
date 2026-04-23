@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WLB Produkt Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,600;1,200;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --black:#0a0a0a; --ink:#111111; --panel:#161616;
+  --border:rgba(255,255,255,.08); --mid:rgba(255,255,255,.38);
+  --light:rgba(255,255,255,.65); --white:#f8f6f2;
+  --red:#8b1a2e; --red2:#a82038;
+  --f-d:'Raleway',sans-serif; --f-b:'Inter',sans-serif; --ease:.26s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:var(--f-b);background:var(--black);color:var(--white);overflow-x:hidden}
+.eye{font-family:var(--f-b);font-size:.62rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:1rem}
+header{background:var(--ink);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center}
+header h1{font-family:var(--f-d);font-weight:200;font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:.02em;margin-bottom:.9rem}
+header h1 em{font-style:italic;font-weight:300;color:var(--red2)}
+header p{font-size:.82rem;font-weight:300;color:var(--mid);max-width:38ch;margin:0 auto;line-height:1.75}
+.form-wrap{max-width:720px;margin:0 auto;padding:2.5rem 2rem;display:flex;flex-direction:column;gap:1.8rem}
+.field{display:flex;flex-direction:column;gap:.5rem}
+.field label{font-family:var(--f-b);font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--mid)}
+.field input,.field textarea{background:rgba(255,255,255,.03);border:1px solid var(--border);padding:11px 14px;color:var(--white);font-family:var(--f-b);font-size:.82rem;font-weight:300;outline:none;transition:border-color var(--ease);width:100%}
+.field input:focus,.field textarea:focus{border-color:rgba(255,255,255,.2)}
+.field textarea{resize:vertical;min-height:70px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+@media(max-width:560px){.two-col{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.2rem}
+.chip{font-family:var(--f-b);font-size:.65rem;letter-spacing:.06em;color:var(--mid);padding:.3rem .8rem;border:1px solid var(--border);cursor:pointer;transition:all var(--ease);background:transparent}
+.chip:hover{border-color:rgba(255,255,255,.2);color:var(--light)}
+.chip.on{border-color:var(--red);color:var(--white);background:rgba(139,26,46,.1)}
+.btn{display:block;width:100%;font-family:var(--f-b);font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;padding:.9rem 2rem;cursor:pointer;transition:background var(--ease),transform var(--ease);border:1px solid transparent}
+.btn:hover:not(:disabled){transform:translateY(-2px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-r{background:var(--red);color:var(--white);border-color:var(--red)}
+.btn-r:hover:not(:disabled){background:var(--red2);border-color:var(--red2)}
+.btn-o{background:transparent;color:var(--mid);border-color:var(--border);width:auto;display:inline-block}
+.btn-o:hover{border-color:rgba(255,255,255,.3);color:var(--white)}
+.err-box{background:rgba(139,26,46,.1);border:1px solid rgba(139,26,46,.25);padding:11px 14px;color:rgba(255,140,140,.9);font-size:.78rem;font-weight:300}
+.loading{min-height:55vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem}
+.spinner{width:30px;height:30px;border:1px solid rgba(139,26,46,.2);border-top-color:var(--red);border-radius:50%;animation:spin .85s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:var(--f-d);font-weight:200;font-style:italic;font-size:1.2rem;color:var(--mid)}
+.results-header{background:var(--ink);border-bottom:1px solid var(--border);padding:2.2rem 2rem;text-align:center}
+.results-header h2{font-family:var(--f-d);font-weight:200;font-size:clamp(1.5rem,3.5vw,2.2rem)}
+.results-header h2 em{font-style:italic;color:var(--red2);font-weight:300}
+.results-header p{font-size:.75rem;color:var(--mid);margin-top:.5rem;font-weight:300}
+.cards{max-width:860px;margin:0 auto;padding:2rem;display:grid;gap:1px;background:var(--border);border:1px solid var(--border)}
+.card{background:var(--ink);padding:1.8rem;position:relative;overflow:hidden;transition:background var(--ease)}
+.card:hover{background:rgba(255,255,255,.02)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background .3s}
+.card:hover::before{background:var(--red)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;margin-bottom:.9rem;flex-wrap:wrap}
+.card-num{font-family:var(--f-d);font-size:.68rem;font-style:italic;color:rgba(255,255,255,.18)}
+.badges{display:flex;gap:.3rem;flex-wrap:wrap}
+.badge{font-family:var(--f-b);font-size:.56rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;padding:.25rem .65rem}
+.b-free{color:rgba(80,200,140,.85);border:1px solid rgba(80,200,140,.18);background:rgba(80,200,140,.05)}
+.b-paid{color:var(--red2);border:1px solid rgba(139,26,46,.28);background:rgba(139,26,46,.07)}
+.b-fmt{color:var(--mid);border:1px solid var(--border)}
+.card-name{font-family:var(--f-d);font-weight:300;font-size:clamp(1rem,2.5vw,1.4rem);color:var(--white);line-height:1.2;margin-bottom:.6rem}
+.card-hook{font-family:var(--f-d);font-size:.84rem;font-style:italic;font-weight:200;color:var(--red2);line-height:1.6;margin-bottom:1.2rem;padding-left:.9rem;border-left:2px solid rgba(139,26,46,.35)}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:520px){.card-grid{grid-template-columns:1fr}}
+.sect{display:flex;flex-direction:column;gap:.35rem}
+.sect-label{font-family:var(--f-b);font-size:.56rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.18)}
+.sect-val{font-size:.78rem;color:var(--mid);line-height:1.65;font-weight:300}
+.sect-val ul{list-style:none;padding:0}
+.sect-val ul li::before{content:'—';font-size:.6rem;color:rgba(255,255,255,.15);margin-right:.4rem}
+.price{font-family:var(--f-d);font-size:1.5rem;font-weight:200;font-style:italic;color:var(--white)}
+.divider{height:1px;background:var(--border);margin:1rem 0}
+.pain{font-size:.75rem;color:rgba(255,255,255,.18);font-style:italic;line-height:1.6;font-weight:300}
+.actions{max-width:860px;margin:0 auto;padding:.8rem 2rem}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="eye">Work Life Business · Produkt Intelligence</span>
+  <h1>Dein <em>Produkt</em><br/>Generator</h1>
+  <p>Nische eingeben — 8 Ideen mit Inhalt, Hook und Preis.</p>
+</header>
+
+<div id="formView">
+  <div class="form-wrap">
+    <div class="field">
+      <label>Deine Nische *</label>
+      <input type="text" id="nische" placeholder="z.B. Business-Coaching für Frauen"/>
+    </div>
+    <div class="field">
+      <label>Zielgruppe *</label>
+      <input type="text" id="zielgruppe" placeholder="z.B. Selbstständige Frauen 30–45"/>
+    </div>
+    <div class="field">
+      <label>Transformation — was soll jemand danach sein oder können? *</label>
+      <textarea id="transformation" placeholder="z.B. Klarheit über ihr Angebot, kommuniziert es selbstbewusst."></textarea>
+    </div>
+    <div class="field">
+      <label>Formate</label>
+      <div class="chips" id="chips-formats"></div>
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Funnel-Position</label>
+        <div class="chips" id="chips-funnel"></div>
+      </div>
+      <div class="field">
+        <label>Ton</label>
+        <div class="chips" id="chips-tone"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>KI-Tools</label>
+      <div class="chips" id="chips-ki"></div>
+    </div>
+    <div class="err-box hidden" id="formErr"></div>
+    <button class="btn btn-r" onclick="generate()">8 Produktideen generieren →</button>
+  </div>
+</div>
+
+<div id="loadingView" class="loading hidden">
+  <div class="spinner"></div>
+  <div class="loading-text">Ideen werden generiert …</div>
+</div>
+
+<div id="resultsView" class="hidden">
+  <div class="results-header">
+    <span class="eye">Ergebnisse</span>
+    <h2 id="resultsTitle">8 <em>Produktideen</em></h2>
+    <p id="resultsSub"></p>
+  </div>
+  <div class="cards" id="cardsContainer"></div>
+  <div class="actions"><button class="btn btn-o" onclick="reset()">← Neue Suche</button></div>
+</div>
+
+<script>
+const FORMATS = ["Freebie","E-Book","Mini-Kurs","Online-Kurs","Workshop","Challenge","Template","Workbook","Masterclass"];
+const FUNNEL  = ["ToFu — Reichweite","MoFu — Vertrauen","BoFu — Kaufbereit"];
+const TONE    = ["Direkt & No-Nonsense","Warm & Empathisch","Provokant & Ehrlich","Professionell","Inspirierend"];
+const KI      = ["ChatGPT","Claude","Canva AI","Notion AI","Midjourney","Keine"];
+const selected = { formats:[], funnel:"", tone:"", ki:[] };
+
+function buildChips(id, items, field, multi) {
+  const el = document.getElementById(id);
+  items.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = item;
+    btn.onclick = () => {
+      if (multi) {
+        if (selected[field].includes(item)) { selected[field] = selected[field].filter(x=>x!==item); btn.classList.remove('on'); }
+        else { selected[field].push(item); btn.classList.add('on'); }
+      } else {
+        el.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+        selected[field] = selected[field]===item ? "" : item;
+        if (selected[field]) btn.classList.add('on');
+      }
+    };
+    el.appendChild(btn);
+  });
+}
+buildChips('chips-formats', FORMATS, 'formats', true);
+buildChips('chips-funnel',  FUNNEL,  'funnel',  false);
+buildChips('chips-tone',    TONE,    'tone',    false);
+buildChips('chips-ki',      KI,      'ki',      true);
+
+async function generate() {
+  const nische = document.getElementById('nische').value.trim();
+  const zielgruppe = document.getElementById('zielgruppe').value.trim();
+  const transformation = document.getElementById('transformation').value.trim();
+  if (!nische || !zielgruppe || !transformation) { showErr('formErr','Bitte Nische, Zielgruppe und Transformation ausfüllen.'); return; }
+  hideErr('formErr');
+  show('loadingView'); hide('formView'); hide('resultsView');
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1800,
+        system: 'Du antwortest ausschließlich mit einem validen JSON-Array. Kein Text, keine Erklärungen, keine Backticks.',
+        messages: [{
+          role: 'user',
+          content: `8 digitale Produktideen als JSON-Array.
+NISCHE: ${nische} | ZIELGRUPPE: ${zielgruppe} | TRANSFORMATION: ${transformation}
+FORMATE: ${selected.formats.join(',')||'Alle'} | TON: ${selected.tone||'Direkt'} | KI: ${selected.ki.join(',')||'Claude'}
+[{"name":"...","format":"...","type":"freebie","hook":"...","inhalt":["P1","P2","P3","P4"],"schmerz":"...","preis":"...","ki_einsatz":"..."}]
+type = freebie oder paid. Deutsch. Konkrete Namen. Mix. DE-Preise.`
+        }]
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const text = data.content?.[0]?.text || '';
+    let results = null;
+    const trimmed = text.trim();
+    if (trimmed.startsWith('[')) { try { results = JSON.parse(trimmed); } catch(e) {} }
+    if (!results) {
+      const match = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
+      if (match) { try { results = JSON.parse(match[0]); } catch(e) {} }
+    }
+    if (!results) {
+      const stripped = text.replace(/```[\w]*\n?/g,'').trim();
+      const match2 = stripped.match(/\[\s*\{[\s\S]*\}\s*\]/);
+      if (match2) { try { results = JSON.parse(match2[0]); } catch(e) {} }
+    }
+    if (!results) throw new Error('JSON konnte nicht gelesen werden. Nochmal versuchen.');
+    renderResults(results, nische, zielgruppe);
+  } catch(e) {
+    show('formView'); hide('loadingView');
+    showErr('formErr', 'Fehler: ' + (e.message || 'Unbekannt'));
+  }
+}
+
+function renderResults(results, nische, zielgruppe) {
+  document.getElementById('resultsTitle').innerHTML = results.length + ' <em>Produktideen</em>';
+  document.getElementById('resultsSub').textContent = nische + ' · ' + zielgruppe;
+  const container = document.getElementById('cardsContainer');
+  container.innerHTML = '';
+  results.forEach((r, i) => {
+    const isFree = r.type === 'freebie';
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="card-num">0${i+1}</span>
+        <div class="badges">
+          <span class="badge ${isFree?'b-free':'b-paid'}">${isFree?'Lead Magnet':'Bezahlt'}</span>
+          <span class="badge b-fmt">${r.format||''}</span>
+        </div>
+      </div>
+      <div class="card-name">${r.name||''}</div>
+      <div class="card-hook">„${r.hook||''}"</div>
+      <div class="card-grid">
+        <div class="sect">
+          <div class="sect-label">Inhalt</div>
+          <div class="sect-val"><ul>${(r.inhalt||[]).map(p=>`<li>${p}</li>`).join('')}</ul></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div class="sect"><div class="sect-label">Preis</div><div class="price">${r.preis||''}</div></div>
+          <div class="sect"><div class="sect-label">KI-Einsatz</div><div class="sect-val">${r.ki_einsatz||''}</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="pain">↳ ${r.schmerz||''}</div>`;
+    container.appendChild(card);
+  });
+  show('resultsView'); hide('loadingView');
+}
+
+function reset() { show('formView'); hide('resultsView'); }
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+function showErr(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.classList.remove('hidden'); }
+function hideErr(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+</body>
+</html>

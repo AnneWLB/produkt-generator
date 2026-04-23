@@ -17,10 +17,15 @@
 html{-webkit-font-smoothing:antialiased}
 body{font-family:var(--f-b);background:var(--black);color:var(--white);overflow-x:hidden}
 .eye{font-family:var(--f-b);font-size:.62rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:1rem}
-header{background:var(--ink);border-bottom:1px solid var(--border);padding:3rem 2rem;text-align:center}
-header h1{font-family:var(--f-d);font-weight:200;font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:.02em;margin-bottom:.9rem}
+header{background:var(--black);border-bottom:1px solid var(--border)}
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--f-d);font-size:1rem;font-weight:600;letter-spacing:.04em;color:var(--white)}
+.nav-logo em{font-style:italic;font-weight:300;color:var(--red2)}
+.nav-right{font-family:var(--f-b);font-size:.62rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--mid)}
+.hero-inner{padding:5rem 2rem 4rem;max-width:900px}
+header h1{font-family:var(--f-d);font-weight:200;font-size:clamp(2.4rem,6vw,5rem);line-height:1.06;letter-spacing:.02em;margin-bottom:1.2rem}
 header h1 em{font-style:italic;font-weight:300;color:var(--red2)}
-header p{font-size:.82rem;font-weight:300;color:var(--mid);max-width:38ch;margin:0 auto;line-height:1.75}
+header p{font-size:.95rem;font-weight:300;color:var(--mid);max-width:42ch;line-height:1.75}
 .form-wrap{max-width:720px;margin:0 auto;padding:2.5rem 2rem;display:flex;flex-direction:column;gap:1.8rem}
 .field{display:flex;flex-direction:column;gap:.5rem}
 .field label{font-family:var(--f-b);font-size:.6rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--white)}
@@ -77,7 +82,9 @@ header p{font-size:.82rem;font-weight:300;color:var(--mid);max-width:38ch;margin
 .price{font-family:var(--f-d);font-size:1.5rem;font-weight:200;font-style:italic;color:var(--white)}
 .divider{height:1px;background:var(--border);margin:1rem 0}
 .pain{font-size:.75rem;color:rgba(255,255,255,.35);font-style:italic;line-height:1.6;font-weight:300}
-.actions{max-width:860px;margin:0 auto;padding:.8rem 2rem}
+.actions{max-width:860px;margin:0 auto;padding:.8rem 2rem;display:flex;gap:.8rem;flex-wrap:wrap}
+.save-hint{max-width:860px;margin:.2rem auto 2rem;padding:0 2rem;display:flex;align-items:flex-start;gap:.6rem;font-size:.72rem;color:rgba(255,255,255,.25);font-weight:300;line-height:1.6}
+.save-hint span:first-child{flex-shrink:0}
 .hidden{display:none}
 .disclaimer{max-width:720px;margin:0 auto;padding:0 2rem;display:flex;flex-direction:column;gap:.8rem}
 .disclaimer-box{border:1px solid var(--border);padding:1rem 1.4rem;display:flex;gap:.8rem;align-items:flex-start}
@@ -92,9 +99,15 @@ header p{font-size:.82rem;font-weight:300;color:var(--mid);max-width:38ch;margin
 <body>
 
 <header>
-  <span class="eye">Work Life Business · Produkt Intelligence</span>
-  <h1>Dein <em>Produkt</em><br/>Generator</h1>
-  <p>Deine 8 Ideen mit Inhalt, Hook und Preis.</p>
+  <div class="nav-bar">
+    <div class="nav-logo">Work <em>Life</em> Business</div>
+    <div class="nav-right">@work.life.business</div>
+  </div>
+  <div class="hero-inner">
+    <span class="eye">Produkt-Generator</span>
+    <h1>Was soll dein nächstes<br/><em>Produkt sein?</em></h1>
+    <p>Füll das aus. Ich generiere dir 8 Ideen — direkt, konkret, umsetzbar.</p>
+  </div>
 </header>
 
 <div id="formView">
@@ -169,7 +182,14 @@ header p{font-size:.82rem;font-weight:300;color:var(--mid);max-width:38ch;margin
       <div class="disclaimer-text">Diese Ideen basieren auf deinen Eingaben und werden von KI generiert. KI kann Fehler machen und kennt weder deine Community noch deinen Markt wirklich. <strong>Bitte immer mit Herz und Verstand prüfen</strong> — du weißt am Ende am besten, was zu dir passt.</div>
     </div>
   </div>
-  <div class="actions"><button class="btn btn-o" onclick="reset()">← Neue Suche</button></div>
+  <div class="actions">
+    <button class="btn btn-o" onclick="reset()">← Neue Suche</button>
+    <button class="btn btn-o" id="copyBtn" onclick="copyResults()">Ergebnisse kopieren</button>
+  </div>
+  <div class="save-hint">
+    <span>💡</span>
+    <span>Tipp: Mach einen Screenshot oder nutze „Ergebnisse kopieren" um die Ideen zu sichern — die Seite speichert nichts.</span>
+  </div>
 </div>
 
 <script>
@@ -295,6 +315,30 @@ function renderResults(results, nische, zielgruppe) {
 }
 
 function reset() { show('formView'); hide('resultsView'); }
+
+function copyResults() {
+  const cards = document.querySelectorAll('.card');
+  let text = '';
+  cards.forEach((card, i) => {
+    const name = card.querySelector('.card-name')?.textContent || '';
+    const hook = card.querySelector('.card-hook')?.textContent || '';
+    const items = [...card.querySelectorAll('.sect-val li')].map(li => '  - ' + li.textContent).join('\n');
+    const price = card.querySelector('.price')?.textContent || '';
+    const pain = card.querySelector('.pain')?.textContent || '';
+    text += (i+1) + '. ' + name + '\n';
+    text += hook + '\n';
+    text += 'Inhalt:\n' + items + '\n';
+    text += 'Preis: ' + price + '\n';
+    text += pain + '\n\n';
+  });
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Kopiert!';
+    setTimeout(() => btn.textContent = 'Ergebnisse kopieren', 2000);
+  }).catch(() => {
+    alert('Kopieren nicht möglich — bitte Screenshot machen.');
+  });
+}
 function show(id) { document.getElementById(id).classList.remove('hidden'); }
 function hide(id) { document.getElementById(id).classList.add('hidden'); }
 function showErr(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.classList.remove('hidden'); }

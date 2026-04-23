@@ -233,22 +233,24 @@ async function generate() {
     });
 
     const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     const rawText = data.content?.[0]?.text || '';
-    // Model continues from prefilled '[', so prepend it
-    const text = '[' + rawText;
     let results = null;
-    try { results = JSON.parse(text); } catch(e) {}
+    // Strategy 1: direct parse (model returned full array)
+    try { results = JSON.parse(rawText.trim()); } catch(e) {}
+    // Strategy 2: prepend [ (assistant prefill continued)
+    if (!results) { try { results = JSON.parse('[' + rawText); } catch(e) {} }
+    // Strategy 3: extract array from anywhere in text
     if (!results) {
-      const match = text.match(/\[\s*\{[\s\S]*\}\s*\]/);
-      if (match) { try { results = JSON.parse(match[0]); } catch(e) {} }
+      const m = rawText.match(/\[\s*\{[\s\S]*\}\s*\]/);
+      if (m) { try { results = JSON.parse(m[0]); } catch(e) {} }
     }
+    // Strategy 4: strip backticks then retry
     if (!results) {
       const stripped = rawText.replace(/```[\w]*\n?/g,'').trim();
-      const full = stripped.startsWith('[') ? stripped : '[' + stripped;
-      try { results = JSON.parse(full); } catch(e) {}
+      try { results = JSON.parse(stripped.startsWith('[') ? stripped : '[' + stripped); } catch(e) {}
     }
-    if (!results) throw new Error('Fehler beim Lesen. Nochmal versuchen.');
+    if (!results) throw new Error('API Antwort: ' + rawText.slice(0, 120));
     renderResults(results, nische, zielgruppe);
   } catch(e) {
     show('formView'); hide('loadingView');
